@@ -8,6 +8,5 @@ dist/
 *.db-journal
 .DS_Store
 uploads/
-src/config/reference_photos/
 .cursor/
 .cursorrules/
