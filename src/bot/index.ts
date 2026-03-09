@@ -804,9 +804,12 @@ bot.on('photo', async (ctx) => {
       aiConfidence = result.confidence;
     }
 
-    // Сохранение в локальное хранилище
+    // Сохранение фото (Google Drive или локально)
     const filename = `${randomUUID()}.jpg`;
-    const filePath = await uploadPhoto(stamped, filename);
+    const filePath = await uploadPhoto(stamped, filename, {
+      location: user.location,
+      displayName: displayName,
+    });
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
@@ -819,7 +822,7 @@ bot.on('photo', async (ctx) => {
       checklistType: activeRun.checklist.type,
       questionOrder: nextQ.questionNumber,
       questionText: nextQ.question.text,
-      employeeName: user.displayName ?? user.firstName ?? 'Сотрудник',
+      employeeName: displayName,
       employeeRole: user.role ?? '',
       aiVerdict,
       aiReason,
@@ -920,9 +923,12 @@ bot.on('document', async (ctx) => {
       aiConfidence = result.confidence;
     }
 
-    // Сохранение в локальное хранилище
+    // Сохранение фото (Google Drive или локально)
     const filename = `${randomUUID()}.jpg`;
-    const filePath = await uploadPhoto(stamped, filename);
+    const filePath = await uploadPhoto(stamped, filename, {
+      location: user.location,
+      displayName: displayName,
+    });
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
@@ -935,7 +941,7 @@ bot.on('document', async (ctx) => {
       checklistType: activeRun.checklist.type,
       questionOrder: nextQ.questionNumber,
       questionText: nextQ.question.text,
-      employeeName: user.displayName ?? user.firstName ?? 'Сотрудник',
+      employeeName: displayName,
       employeeRole: user.role ?? '',
       aiVerdict,
       aiReason,
