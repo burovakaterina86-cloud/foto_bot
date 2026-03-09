@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+*.db
+*.db-journal
+.DS_Store
+uploads/
+src/config/reference_photos/
+.cursor/
+.cursorrules/

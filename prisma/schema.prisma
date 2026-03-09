@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  firstName  String?
+  lastName   String?
+  username   String?
+  displayName String?
+  role        String?
+  location    String?
+  shiftStartedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  runs   Run[]
+  shifts Shift[]
+}
+
+model Checklist {
+  id          Int        @id @default(autoincrement())
+  key         String     @unique
+  title       String
+  description String?
+  role        String
+  type        String
+  timeWindows String?
+  intervalHours Int?
+
+  questions Question[]
+  runs      Run[]
+}
+
+model Question {
+  id          Int       @id @default(autoincrement())
+  checklistId Int
+  text        String
+  order       Int
+  isRequired  Boolean   @default(true)
+  taskType    String    @default("photo")
+  section     String?
+  referencePhoto String?
+  aiRule      String?
+
+  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+}
+
+model Run {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  checklistId Int
+  shiftId     Int?
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checklist Checklist @relation(fields: [checklistId], references: [id])
+  shift     Shift?    @relation(fields: [shiftId], references: [id])
+  answers   Answer[]
+}
+
+model Answer {
+  id           Int      @id @default(autoincrement())
+  runId        Int
+  questionId   Int
+  value        String
+  aiVerdict    String?
+  aiReason     String?
+  aiConfidence Float?
+  photoHash    String?
+  createdAt    DateTime @default(now())
+
+  run      Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model Shift {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  minutes   Int?
+  failCount Int?
+
+  user User @relation(fields: [userId], references: [id])
+  runs Run[]
+}
+
+model InviteCode {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  createdBy String    // telegram_id админа
+  usedBy    String?   // telegram_id сотрудника
+  usedAt    DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+}
+
+model Outbox {
+  id             Int      @id @default(autoincrement())
+  eventType      String   // 'answer' | 'shift_summary'
+  payloadJson    String   // JSON строка с данными для Make
+  idempotencyKey String   @unique // 'answer:{runId}:{questionId}' или 'shift:{shiftId}'
+  status         String   @default("pending") // pending | sent | failed
+  attempts       Int      @default(0)
+  nextRetryAt    DateTime @default(now())
+  lastError      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

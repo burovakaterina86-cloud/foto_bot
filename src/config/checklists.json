@@ -1,0 +1,1295 @@
+{
+  "roles": [
+    "manager",
+    "waiter",
+    "cleaner",
+    "cook",
+    "sous_chef",
+    "barista"
+  ],
+  "roleNames": {
+    "manager": "Менеджер",
+    "waiter": "Официант",
+    "cleaner": "Клинер",
+    "cook": "Повар",
+    "sous_chef": "Су-шеф",
+    "barista": "Бариста"
+  },
+  "checklists": [
+    {
+      "id": "manager_open",
+      "role": "manager",
+      "type": "open",
+      "name": "Менеджер — открытие ресторана",
+      "time_windows": [
+        {
+          "start": "09:00",
+          "end": "10:30"
+        }
+      ],
+      "source_audit_id": "f96706e8-8ae9-4310-b54b-3036d3264da6",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Селфи в форме (фото)",
+          "type": "photo",
+          "section": "Открытие ресторана",
+          "ai_rule": "uniform_check",
+          "reference_photo": "uniform_selfie.jpg"
+        },
+        {
+          "order": 1,
+          "text": "Проверка передачи предыдущей смены (стейшены)",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 2,
+          "text": "Проверка передачи предыдущей смены (зона мойки)",
+          "type": "photo",
+          "section": "Открытие ресторана",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 3,
+          "text": "Вентиляцию включил",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 4,
+          "text": "Музыка работает по плей-листу Яндекс Музыки",
+          "type": "confirm",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 5,
+          "text": "Туалет",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 6,
+          "text": "Открытие первого зала",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 7,
+          "text": "Контроль закрытия кухни и бара",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 8,
+          "text": "Входная группа чистая",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 9,
+          "text": "Гигиенический журнал",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 10,
+          "text": "Хранение личных вещей",
+          "type": "photo",
+          "section": "Открытие ресторана",
+          "reference_photo": "personal_belongings_1.jpg"
+        },
+        {
+          "order": 11,
+          "text": "Планерку провел",
+          "type": "confirm",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 12,
+          "text": "Открыты окна",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 13,
+          "text": "Проверить отзывы на Яндексе (ресторан, доставка, кофепоинт)",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 14,
+          "text": "Сфотографировать брони в тильде на 10:00",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 15,
+          "text": "Выборочная проверка на маркировку 2 любых позиций на баре",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 16,
+          "text": "Выборочная проверка на маркировку 2 любых позиций на кухне",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 17,
+          "text": "Журнал учёта использования фритюрных жиров",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 18,
+          "text": "Фото верхнего отсека винного шкафа",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        },
+        {
+          "order": 19,
+          "text": "Фото нижнего отсека винного шкафа",
+          "type": "photo",
+          "section": "Открытие ресторана"
+        }
+      ]
+    },
+    {
+      "id": "manager_close",
+      "role": "manager",
+      "type": "close",
+      "name": "Менеджер — закрытие ресторана",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:59"
+        }
+      ],
+      "source_audit_id": "6c126a57-f062-4f81-9169-a6fb83b8a59a",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Принять кассу",
+          "type": "photo",
+          "section": "Закрытие кофепоинта"
+        },
+        {
+          "order": 1,
+          "text": "Чистота кофепоинта",
+          "type": "photo",
+          "section": "Закрытие кофепоинта",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 2,
+          "text": "Закрытие зала 2",
+          "type": "photo",
+          "section": "Закрытие гостевой зоны"
+        },
+        {
+          "order": 3,
+          "text": "Закрытие зала 1",
+          "type": "photo",
+          "section": "Закрытие гостевой зоны"
+        },
+        {
+          "order": 4,
+          "text": "Закрытие туалетов",
+          "type": "photo",
+          "section": "Закрытие гостевой зоны"
+        },
+        {
+          "order": 5,
+          "text": "Распределение чаевых по грейдам. Обязательно о чаевых писать в ежедневном отчёте",
+          "type": "confirm",
+          "section": "Закрытие гостевой зоны"
+        },
+        {
+          "order": 6,
+          "text": "Закрытие бара ресторана",
+          "type": "photo",
+          "section": "Закрытие гостевой зоны"
+        },
+        {
+          "order": 7,
+          "text": "Закрытие зоны мойки",
+          "type": "photo",
+          "section": "Закрытие служебных помещений",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 8,
+          "text": "Закрытие кухни",
+          "type": "photo",
+          "section": "Закрытие служебных помещений"
+        },
+        {
+          "order": 9,
+          "text": "Проверить выключен ли тандыр",
+          "type": "photo",
+          "section": "Закрытие служебных помещений"
+        },
+        {
+          "order": 10,
+          "text": "Выключить музыку",
+          "type": "photo",
+          "section": "Закрытие служебных помещений"
+        },
+        {
+          "order": 11,
+          "text": "Выключить везде свет",
+          "type": "confirm",
+          "section": "Закрытие служебных помещений"
+        },
+        {
+          "order": 12,
+          "text": "Закрыть кассу",
+          "type": "photo",
+          "section": "Закрытие служебных помещений"
+        },
+        {
+          "order": 13,
+          "text": "Открыть окна на кухне и в зоне мойки",
+          "type": "photo",
+          "section": "Закрытие служебных помещений",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 14,
+          "text": "Выключить газоконвертор (после проветривания кухни и зоны мойки, не менее 30 минут)",
+          "type": "photo",
+          "section": "Закрытие служебных помещений",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 15,
+          "text": "Отчёт по смене (отправить в telegram группу Thali and Curry. Front)",
+          "type": "confirm",
+          "section": "Закрытие служебных помещений"
+        }
+      ]
+    },
+    {
+      "id": "waiter_open",
+      "role": "waiter",
+      "type": "open",
+      "name": "Официант — открытие смены",
+      "time_windows": [
+        {
+          "start": "09:00",
+          "end": "11:00"
+        }
+      ],
+      "source_audit_id": "2dc2b3c7-9aaa-4c47-be5c-114ee8e45d2d",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Селфи в форме (фото)",
+          "type": "photo",
+          "section": "Начало смены",
+          "ai_rule": "uniform_check",
+          "reference_photo": "uniform_selfie.jpg"
+        },
+        {
+          "order": 1,
+          "text": "Хранение личных вещей",
+          "type": "photo",
+          "section": "Начало смены",
+          "reference_photo": "personal_belongings_1.jpg"
+        },
+        {
+          "order": 2,
+          "text": "Стейшн наполнен приборами и салфетками",
+          "type": "photo",
+          "section": "Начало смены",
+          "reference_photo": "station_filled.jpg"
+        },
+        {
+          "order": 3,
+          "text": "Стулья, кресла, столы чистые",
+          "type": "photo",
+          "section": "Начало смены",
+          "reference_photo": "chairs_clean.jpg"
+        },
+        {
+          "order": 4,
+          "text": "Столы засервированы",
+          "type": "photo",
+          "section": "Начало смены",
+          "reference_photo": "tables_set.jpg"
+        },
+        {
+          "order": 5,
+          "text": "Бокалы и приборы натерты",
+          "type": "confirm",
+          "section": "Начало смены",
+          "reference_photo": "glasses_clean_1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "waiter_close",
+      "role": "waiter",
+      "type": "close",
+      "name": "Официант — закрытие смены",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:59"
+        }
+      ],
+      "source_audit_id": "457a01e4-9da3-470c-98ea-23a20ae3fef6",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Уборка сервировки со столов",
+          "type": "photo",
+          "section": "Подготовка зала к закрытию"
+        },
+        {
+          "order": 1,
+          "text": "Подготовка стейшена к утренней смене",
+          "type": "photo",
+          "section": "Подготовка зала к закрытию"
+        },
+        {
+          "order": 2,
+          "text": "Стулья, кресла, столы чистые, стоят на своих местах",
+          "type": "photo",
+          "section": "Подготовка зала к закрытию"
+        },
+        {
+          "order": 3,
+          "text": "Чистые тряпки",
+          "type": "photo",
+          "section": "Подготовка зала к закрытию"
+        },
+        {
+          "order": 4,
+          "text": "Зона персонала чистая (шкаф и кабинет)",
+          "type": "photo",
+          "section": "Подготовка зала к закрытию"
+        },
+        {
+          "order": 5,
+          "text": "Выручка за смену",
+          "type": "confirm",
+          "section": "Показатели эффективности за смену"
+        },
+        {
+          "order": 6,
+          "text": "Отчёт за день",
+          "type": "confirm",
+          "section": "Показатели эффективности за смену"
+        }
+      ]
+    },
+    {
+      "id": "cleaner_open",
+      "role": "cleaner",
+      "type": "open",
+      "name": "Клинер — открытие (уборка начало дня)",
+      "time_windows": [
+        {
+          "start": "08:00",
+          "end": "10:30"
+        }
+      ],
+      "source_audit_id": "6600696e-9d7b-444c-93d0-b681a5ff567c",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Selfies in the form",
+          "type": "photo",
+          "section": "The first zone",
+          "ai_rule": "uniform_check",
+          "reference_photo": "uniform_selfie.jpg"
+        },
+        {
+          "order": 1,
+          "text": "Storage of personal belongings",
+          "type": "photo",
+          "section": "The first zone",
+          "reference_photo": "personal_belongings_1.jpg"
+        },
+        {
+          "order": 2,
+          "text": "Photo of work crocs and socks",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 3,
+          "text": "Hall 1. The floor is swept",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 4,
+          "text": "WC 1 toilet",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 5,
+          "text": "WC 2 toilet",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 6,
+          "text": "Hall 1. The floor is washed",
+          "type": "photo",
+          "section": "The first zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 7,
+          "text": "WC common area",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 8,
+          "text": "Flowers",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 9,
+          "text": "Turn on the humidifier",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 10,
+          "text": "Turn on the backlight of the banana",
+          "type": "photo",
+          "section": "The first zone"
+        },
+        {
+          "order": 11,
+          "text": "No garbage on the stairs, clean walls, clean floors, stair railings, door handles (1 floor)",
+          "type": "photo",
+          "section": "The second zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 12,
+          "text": "No garbage on the stairs, clean walls, clean floors, stair railings, door handles (2 floor)",
+          "type": "photo",
+          "section": "The second zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 13,
+          "text": "Clean glass on the entrance panel",
+          "type": "photo",
+          "section": "The second zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 14,
+          "text": "Flowers",
+          "type": "photo",
+          "section": "The second zone"
+        },
+        {
+          "order": 15,
+          "text": "Hall 2. The floor is swept",
+          "type": "photo",
+          "section": "The third zone"
+        },
+        {
+          "order": 16,
+          "text": "Hall 2. The floor is washed",
+          "type": "photo",
+          "section": "The third zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 17,
+          "text": "Flowers",
+          "type": "photo",
+          "section": "The third zone"
+        },
+        {
+          "order": 18,
+          "text": "Clean area under the sink",
+          "type": "photo",
+          "section": "The fourth zone",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 19,
+          "text": "Сlean window sill",
+          "type": "photo",
+          "section": "The fourth zone"
+        },
+        {
+          "order": 20,
+          "text": "Сlean sinks",
+          "type": "photo",
+          "section": "The fourth zone"
+        },
+        {
+          "order": 21,
+          "text": "Сlean and tidy shelves for dishes",
+          "type": "photo",
+          "section": "The fourth zone"
+        },
+        {
+          "order": 22,
+          "text": "Сlean trash area",
+          "type": "photo",
+          "section": "The fifth zone"
+        },
+        {
+          "order": 23,
+          "text": "Сlean and tidy shelves for dishes",
+          "type": "photo",
+          "section": "The fifth zone"
+        },
+        {
+          "order": 24,
+          "text": "Сlean corridor in the staff area",
+          "type": "photo",
+          "section": "The fifth zone"
+        },
+        {
+          "order": 25,
+          "text": "The ferns on the stairs have been sprayed",
+          "type": "photo",
+          "section": "Flowers"
+        },
+        {
+          "order": 26,
+          "text": "Ferns on the blue station are sprayed",
+          "type": "photo",
+          "section": "Flowers"
+        }
+      ]
+    },
+    {
+      "id": "cleaner_close",
+      "role": "cleaner",
+      "type": "close",
+      "name": "Клинер — закрытие (уборка конец дня)",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:59"
+        }
+      ],
+      "source_audit_id": "faa7d0de-9c11-410a-96da-3dfb7a0b4823",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Throw out the trash",
+          "type": "photo",
+          "section": "Closing toilets"
+        },
+        {
+          "order": 1,
+          "text": "Fill toilets with cleaner",
+          "type": "photo",
+          "section": "Closing toilets",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 2,
+          "text": "Throw out the trash",
+          "type": "photo",
+          "section": "Clean the kitchen"
+        },
+        {
+          "order": 3,
+          "text": "Wash all horizontal surfaces",
+          "type": "photo",
+          "section": "Clean the kitchen",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 4,
+          "text": "Clean the sink and remove all food waste",
+          "type": "photo",
+          "section": "Clean the kitchen",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 5,
+          "text": "Throw out the trash",
+          "type": "photo",
+          "section": "Wash the washing area"
+        },
+        {
+          "order": 6,
+          "text": "Wash all horizontal surfaces",
+          "type": "photo",
+          "section": "Wash the washing area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 7,
+          "text": "Clean the sink and remove all food waste",
+          "type": "photo",
+          "section": "Wash the washing area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 8,
+          "text": "Throw out the trash",
+          "type": "photo",
+          "section": "Wash the staff area"
+        },
+        {
+          "order": 9,
+          "text": "Wash all horizontal surfaces",
+          "type": "photo",
+          "section": "Wash the staff area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 10,
+          "text": "Remove trash in hall 1",
+          "type": "photo",
+          "section": "Remove trash from guest areas"
+        },
+        {
+          "order": 11,
+          "text": "Remove trash in hall 2",
+          "type": "photo",
+          "section": "Remove trash from guest areas"
+        },
+        {
+          "order": 12,
+          "text": "Remove trash in the stairs",
+          "type": "photo",
+          "section": "Remove trash from guest areas"
+        },
+        {
+          "order": 13,
+          "text": "Tidy personal space for things",
+          "type": "photo",
+          "section": "Staff room"
+        },
+        {
+          "order": 14,
+          "text": "Work uniform neatly folded",
+          "type": "photo",
+          "section": "Staff room",
+          "ai_rule": "uniform_check"
+        },
+        {
+          "order": 15,
+          "text": "Clean the floor at the coffee point",
+          "type": "photo",
+          "section": "At barista zones",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 16,
+          "text": "Clean the floor on the upper bar",
+          "type": "photo",
+          "section": "At barista zones",
+          "ai_rule": "cleanliness_check"
+        }
+      ]
+    },
+    {
+      "id": "cook_open",
+      "role": "cook",
+      "type": "open",
+      "name": "Повар — открытие смены",
+      "time_windows": [
+        {
+          "start": "08:00",
+          "end": "10:30"
+        }
+      ],
+      "source_audit_id": "caf2fbf1-4ac5-4660-b900-1babb3f16202",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Cook at workplace is in uniform",
+          "type": "photo",
+          "section": "Morning",
+          "ai_rule": "uniform_check",
+          "reference_photo": "uniform_selfie.jpg"
+        },
+        {
+          "order": 1,
+          "text": "Personal belongings are put in the closet (shoes are put in a special named box)",
+          "type": "photo",
+          "section": "Morning",
+          "reference_photo": "personal_belongings_2.jpg"
+        },
+        {
+          "order": 2,
+          "text": "Photo of work crocs and socks",
+          "type": "photo",
+          "section": "Morning"
+        },
+        {
+          "order": 3,
+          "text": "Hair tied up, bandana on head",
+          "type": "photo",
+          "section": "Morning"
+        },
+        {
+          "order": 4,
+          "text": "The cook turned on the tandoor",
+          "type": "photo",
+          "section": "Morning"
+        },
+        {
+          "order": 5,
+          "text": "Turn on fry machine",
+          "type": "confirm",
+          "section": "Morning"
+        },
+        {
+          "order": 6,
+          "text": "WASH HANDS WITH HANDS LIQUID!",
+          "type": "photo",
+          "section": "Morning",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 7,
+          "text": "Washing liquids in stock, labeled with expired dates",
+          "type": "photo",
+          "section": "Morning",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 8,
+          "text": "Fry oil is good condition - ONLY for opening helper",
+          "type": "photo",
+          "section": "Morning"
+        },
+        {
+          "order": 9,
+          "text": "The cook filled out the refrigerators temperature control log",
+          "type": "photo",
+          "section": "Morning",
+          "ai_rule": "temperature_check"
+        }
+      ]
+    },
+    {
+      "id": "cook_close",
+      "role": "cook",
+      "type": "close",
+      "name": "Повар — закрытие смены",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:59"
+        }
+      ],
+      "source_audit_id": "317da9a1-e533-4492-b545-13c3a33919c2",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Refrigerated table 1",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 1,
+          "text": "Refrigerated table 2",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 2,
+          "text": "Upright fridges",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 3,
+          "text": "Freezer",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 4,
+          "text": "Working equipment",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 5,
+          "text": "Cleanliness of work surfaces",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 6,
+          "text": "Work clothes",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 7,
+          "text": "Juicer cleaning",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        }
+      ]
+    },
+    {
+      "id": "sous_chef_open",
+      "role": "sous_chef",
+      "type": "open",
+      "name": "Су-шеф — открытие смены",
+      "time_windows": [
+        {
+          "start": "09:00",
+          "end": "11:00"
+        }
+      ],
+      "source_audit_id": "a00aef27-c832-4fc1-a59d-fe9149438c74",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "All employees are in uniform at their workstations and all have chef hats",
+          "type": "photo",
+          "section": "Appearance and personal effects",
+          "ai_rule": "uniform_check"
+        },
+        {
+          "order": 1,
+          "text": "Storage of personal belongings in the staff room",
+          "type": "photo",
+          "section": "Appearance and personal effects"
+        },
+        {
+          "order": 2,
+          "text": "Take a picture of the temperature of 1 refrigeration table",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 3,
+          "text": "Take a picture of the temperature of 2 refrigeration table",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 4,
+          "text": "Take a picture of the temperature of 1 refrigerator",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 5,
+          "text": "Take a picture of the temperature in 1 upright freezer",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 6,
+          "text": "Take a picture of the temperature in 2 upright freezer",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 7,
+          "text": "Take a picture of the temperature in the freezer",
+          "type": "photo",
+          "section": "Temperature control of refrigerators",
+          "ai_rule": "temperature_check"
+        },
+        {
+          "order": 8,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the freezer",
+          "type": "photo",
+          "section": "Kitchen cleanliness control",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 9,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of three vertical refrigerators",
+          "type": "photo",
+          "section": "Kitchen cleanliness control",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 10,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the iron refrigerator table 1",
+          "type": "photo",
+          "section": "Kitchen cleanliness control",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 11,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the iron refrigerator table 2",
+          "type": "photo",
+          "section": "Kitchen cleanliness control",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 12,
+          "text": "The presence of a diluted 5% deinfection solution under the sink",
+          "type": "photo",
+          "section": "Kitchen cleanliness control"
+        },
+        {
+          "order": 13,
+          "text": "Photo of product labeling",
+          "type": "photo",
+          "section": "Kitchen cleanliness control"
+        },
+        {
+          "order": 14,
+          "text": "All working equipment is working properly",
+          "type": "confirm",
+          "section": "Equipment"
+        },
+        {
+          "order": 15,
+          "text": "Cleanliness of the tandoor oven",
+          "type": "photo",
+          "section": "Equipment",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 16,
+          "text": "The oil in the fryer checked out",
+          "type": "photo",
+          "section": "Equipment"
+        }
+      ]
+    },
+    {
+      "id": "sous_chef_close",
+      "role": "sous_chef",
+      "type": "close",
+      "name": "Су-шеф — закрытие смены",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:59"
+        }
+      ],
+      "source_audit_id": "a166ea32-8b57-4626-9074-f1684c983284",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "All employees at their workplaces are in uniform. Take a photo",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "uniform_check"
+        },
+        {
+          "order": 1,
+          "text": "The employees are wearing hats, their hair is not knocked out",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 2,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the iron refrigerator table",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 3,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the iron refrigerator table 2",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 4,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of three vertical refrigerators",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 5,
+          "text": "Clean doors, shelves, seals, freezers, no expired products. Take a photo of the freezer",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 6,
+          "text": "All working equipment is working properly.",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 7,
+          "text": "The presence of a diluted 5% deinfection solution under the sink",
+          "type": "photo",
+          "section": "Evening"
+        },
+        {
+          "order": 8,
+          "text": "The presence of soap and a clean towel on the sink for washing hands",
+          "type": "photo",
+          "section": "Evening",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 9,
+          "text": "The purity of the distribution. No crumbs, sauce stains",
+          "type": "photo",
+          "section": "Evening"
+        }
+      ]
+    },
+    {
+      "id": "barista_open",
+      "role": "barista",
+      "type": "open",
+      "name": "Бариста — открытие кофепоинта и бара",
+      "time_windows": [
+        {
+          "start": "08:00",
+          "end": "10:00"
+        }
+      ],
+      "source_audit_id": "4d6b826a-59d4-44eb-8d43-8ddda653580e",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Включить кофемашину. Turn on the coffee machine",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 1,
+          "text": "Включить освещение. Turn on lighting",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 2,
+          "text": "Надеть фартук, бейджик. Сделай сэлфи. Put on an apron and a badge. Make a selfie",
+          "type": "photo",
+          "section": "Задачи. Tasks",
+          "ai_rule": "uniform_check",
+          "reference_photo": "uniform_selfie.jpg"
+        },
+        {
+          "order": 3,
+          "text": "Выставить на улицу колонку и аромадиффузор- прячутся под гостевой столешницей. (если нет дождя\\снега). Place the speaker and aroma diffuser outside—they're hidden under the guest countertop (unless it's raining or snowing).",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 4,
+          "text": "Включить IIKO. (Заходите под своим паролем, сумма внесения размена: 0 руб) Enable IIKO ( out your password, exchange amount: 0 rubles)",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 5,
+          "text": "Проверить чистоту рабочего места: столешница, мойка, кофемашина, кофемолка- одно фото) Check the cleanliness of the work area: countertop, sink, coffee machine, coffee grinder - one photo)",
+          "type": "photo",
+          "section": "Задачи. Tasks",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 6,
+          "text": "Открыть двери (во время теплой погоды) Open doors (during warm weather)",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 7,
+          "text": "Спросить менеджера о продукции на витрину (выставить при наличие). Ask the manager about products for display (if available)",
+          "type": "confirm",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 8,
+          "text": "Проверить наличие расходников на баре: стаканчики с собой бумажные- 0,2, 0,3, 0,4, пластиковые- 0,3, 0,4; крышки- большие, маленькие, пластиковые (единый размер) кружки глинянные синие- 0,2, 0,3; кружки детские- в виде мишек прозрачные; салфетки; салфетки влажные; трубочки; капхолдеры; подставки под стаканчики. Check the availability of consumables at the bar: take-away paper cups - 0.2, 0.3, 0.4, plastic - 0.3, 0.4; lids - large, small, plastic (one size); blue clay mugs - 0.2, 0.3; children's mugs - transparent teddy bear-shaped; napkins; wet wipes; straws; cup holders; coasters",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 9,
+          "text": "Проверить наличие продукции на баре: кофе- в бункере + доп упаковка; молоко- 3,2%, безлактозное, кокосовое, фундучное, миндальное; апельсиновый фреш (не меньше литра); лимон свежий (пару штук); лайм (пару штук); мята разобранная (в случае отсутствия разобрать); арахисовая паста; сиропы. Check the availability of products at the bar: coffee - in a hopper + additional packaging; milk - 3.2%, lactose-free, coconut, hazelnut, almond; fresh orange juice (at least a liter); fresh lemon (a couple of pieces); lime (a couple of pieces); mint (if not available, disassemble); peanut butter; syrups",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 10,
+          "text": "ЕСЛИ ЧТО-ТО ЗАКАНЧИВАЕТСЯ СООБЩИТЬ МЕНЕДЖЕРУ СМЕНЫ В БЕСЕДЕ: «Бар- отдача». IF SOMETHING ENDS, TELL THE SHIFT MANAGER IN A CONVERSATION: \"Bar-otdach\"",
+          "type": "confirm",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 11,
+          "text": "Включить бойлер на верхнем баре и поставить круассаны запекаться (15 минут) Turn on the boiler on the top bar and bake the croissants (15 minutes)",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 12,
+          "text": "Проверить сроки годности заготовок в холодильнике (вишня- розмарин, саган-дайля-малина, апельсиновый фреш). Check the expiration dates of the prepared items in the refrigerator (cherry-rosemary, sagan-daylya-raspberry, orange juice)",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 13,
+          "text": "Проверить срок годности открытых упаковок молока. Check the expiration date of opened milk containers",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 14,
+          "text": "Проверить наполненность мусорного бака. Мусорное ведро должно быть пустое (1 смена)",
+          "type": "photo",
+          "section": "Задачи. Tasks"
+        },
+        {
+          "order": 15,
+          "text": "Проверить настроение на день ;) Check your mood for the day ;)",
+          "type": "confirm",
+          "section": "Задачи. Tasks"
+        }
+      ]
+    },
+    {
+      "id": "barista_close",
+      "role": "barista",
+      "type": "close",
+      "name": "Бариста — закрытие кофепоинта и бара",
+      "time_windows": [
+        {
+          "start": "21:00",
+          "end": "23:00"
+        }
+      ],
+      "source_audit_id": "9f9d398a-98bd-4bd8-8286-4affd62b4d31",
+      "tasks": [
+        {
+          "order": 0,
+          "text": "Чистые рабочие поверхности в зоне мойки и кофетачки (сделать общую фотографию) Clean work surfaces in the sink and coffee grinder area (take a group photo)",
+          "type": "photo",
+          "section": "Чистота рабочей зоны. Cleanliness of the work area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 1,
+          "text": "Чистые рабочие поверхности в гостевой зоне. Clean work surfaces in the guest area.",
+          "type": "photo",
+          "section": "Чистота рабочей зоны. Cleanliness of the work area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 2,
+          "text": "Чистота тряпок/ Cleanliness of rags",
+          "type": "photo",
+          "section": "Чистота рабочей зоны. Cleanliness of the work area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 3,
+          "text": "Проверь, что мусорный бак пустой (2 смена)",
+          "type": "photo",
+          "section": "Чистота рабочей зоны. Cleanliness of the work area"
+        },
+        {
+          "order": 4,
+          "text": "Инвентарь вымыт, Раковина чистая/ Utensils washed, basin clean",
+          "type": "photo",
+          "section": "Чистота рабочей зоны. Cleanliness of the work area",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 5,
+          "text": "Выключить кофетачку и кофемолку (сделать общую фотографию)  Turn off the coffee maker and coffee grinder (take a group photo)",
+          "type": "photo",
+          "section": "Выключение всех электроприборов. Turn off all electrical appliances"
+        },
+        {
+          "order": 6,
+          "text": "Напечатать 41 и 48 отчеты, сделать изъятие налички \"в сейф\", закрыть смену, выключить планшет с AIIKO. Print reports 41 and 48, withdraw cash \"to the safe\", close the shift, turn off the tablet with AIIKO",
+          "type": "photo",
+          "section": "Выключение всех электроприборов. Turn off all electrical appliances"
+        },
+        {
+          "order": 7,
+          "text": "Закрытие первой группы. Closing the first group",
+          "type": "photo",
+          "section": "Закрытие кофетачки. Closing the coffee pot"
+        },
+        {
+          "order": 8,
+          "text": "Закрытие второй группы. Closing the second group",
+          "type": "photo",
+          "section": "Закрытие кофетачки. Closing the coffee pot"
+        },
+        {
+          "order": 9,
+          "text": "Чистые холдеры (прислать фотографию обоих в разобранном виде). Clean holders (send a photo of both disassembled)",
+          "type": "photo",
+          "section": "Закрытие кофетачки. Closing the coffee pot",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 10,
+          "text": "Сдать кассу и отчёты менеджеру. Submit the cash register and reports to the manager",
+          "type": "photo",
+          "section": "Касса.Cash register"
+        },
+        {
+          "order": 11,
+          "text": "Чистые в зоне бойлера и печки. Clean in the boiler and stove area",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 12,
+          "text": "Чистые поверхности в зоне мойки. Clean surfaces in the sink area",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar",
+          "ai_rule": "cleanliness_check"
+        },
+        {
+          "order": 13,
+          "text": "2 смена Бойлер (вода долита, сам бойлер выключен) Boiler (water is added, the boiler itself is turned off)",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar"
+        },
+        {
+          "order": 14,
+          "text": "Банки с чаем пополнены. The tea jars have been refilled.",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar"
+        },
+        {
+          "order": 15,
+          "text": "Вытащить из морозилки 4 круассана, положить в выключенную печь. Take 4 croissants out of the freezer and place them in the turned off oven.",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar"
+        },
+        {
+          "order": 16,
+          "text": "Проверь, что мусорный бак наверху пустой (2 смена)",
+          "type": "photo",
+          "section": "Закрытие бара ресторана. Closing of the restaurant bar"
+        }
+      ]
+    }
+  ]
+}
