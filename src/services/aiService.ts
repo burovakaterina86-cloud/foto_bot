@@ -96,7 +96,7 @@ const REFERENCE_SYSTEM_PROMPT = [
 ].join(' ');
 
 const referenceHints: Record<string, string> = {
-  uniform_check: 'Проверь что сотрудник в таком же типе униформы как на эталоне (фартук, поло, спецодежда). Не сравнивай лицо, причёску или фон.',
+  uniform_check: 'Первое фото — ЭТАЛОН рабочей униформы данного заведения. Считай что одежда на эталоне — это и есть правильная униформа, даже если она выглядит как обычная одежда. Твоя задача: проверить что на втором фото сотрудник одет в ПОХОЖУЮ одежду. Цвет, фасон, бейджик и мелкие детали могут отличаться. Не сравнивай лицо, причёску, фон. Если одежда хотя бы примерно похожа на эталон — ставь OK.',
   cleanliness_check: 'Проверь что помещение/зона в похожем чистом состоянии как на эталоне. Допустимы мелкие отличия в расстановке предметов.',
   photo_relevance: 'Проверь что на фото тот же тип объекта/зоны что на эталоне.',
 };
@@ -155,7 +155,26 @@ export async function verifyPhoto(
     const base64Image = imageBuffer.toString('base64');
     const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
-    const refBase64 = referencePhoto ? await loadReferencePhoto(referencePhoto) : null;
+    let refFilename: string | null = null;
+    if (typeof referencePhoto === 'string') {
+      // Может быть JSON-массив, сериализованный в строку
+      if (referencePhoto.startsWith('[')) {
+        try {
+          const arr = JSON.parse(referencePhoto) as string[];
+          if (arr.length > 0) {
+            refFilename = arr[Math.floor(Math.random() * arr.length)];
+          }
+        } catch {
+          refFilename = referencePhoto;
+        }
+      } else {
+        refFilename = referencePhoto;
+      }
+    }
+
+    console.log('[ai] referencePhoto:', referencePhoto);
+
+    const refBase64 = refFilename ? await loadReferencePhoto(refFilename) : null;
 
     let messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 
@@ -202,6 +221,7 @@ export async function verifyPhoto(
     }
 
     const result = parseAiResponse(content);
+    console.log('[ai] result:', JSON.stringify(result));
 
     // Порог уверенности: если AI не уверен на 90%+ — не наказываем сотрудника
     if (result.verdict === 'fail' && result.confidence < MIN_CONFIDENCE) {

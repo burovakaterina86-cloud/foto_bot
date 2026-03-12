@@ -1,11 +1,10 @@
 export type RoleKey =
-  | 'admin'
-  | 'senior_waiter'
+  | 'manager'
   | 'waiter'
-  | 'bartender'
-  | 'hostess'
-  | 'cashier'
-  | 'cleaner';
+  | 'cleaner'
+  | 'cook'
+  | 'sous_chef'
+  | 'barista';
 
 export type RoleConfig = {
   key: RoleKey;
@@ -13,13 +12,12 @@ export type RoleConfig = {
 };
 
 export const roles: RoleConfig[] = [
-  { key: 'admin', label: 'Администратор' },
-  { key: 'senior_waiter', label: 'Старший официант' },
+  { key: 'manager', label: 'Менеджер' },
   { key: 'waiter', label: 'Официант' },
-  { key: 'bartender', label: 'Бармен' },
-  { key: 'hostess', label: 'Хостес' },
-  { key: 'cashier', label: 'Кассир' },
-  { key: 'cleaner', label: 'Уборщик' },
+  { key: 'cleaner', label: 'Клинер' },
+  { key: 'cook', label: 'Повар' },
+  { key: 'sous_chef', label: 'Су-шеф' },
+  { key: 'barista', label: 'Бариста' },
 ];
 
 export function findRoleByLabel(label: string): RoleConfig | undefined {

@@ -6,25 +6,23 @@ import { google } from 'googleapis';
 const ENABLE_GOOGLE_DRIVE = process.env.ENABLE_GOOGLE_DRIVE === 'true';
 const LOCAL_STORAGE_PATH = process.env.LOCAL_STORAGE_PATH ?? './uploads';
 
-// Google Drive folder IDs по локациям
-const DRIVE_FOLDERS: Record<string, string | undefined> = {
-  restaurant: process.env.GOOGLE_DRIVE_FOLDER_RESTAURANT,
-  cafe: process.env.GOOGLE_DRIVE_FOLDER_CAFE,
-};
+// Единая корневая папка Google Drive
+const DRIVE_ROOT_FOLDER = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
 // Кэш ID подпапок сотрудников: "parentFolderId/employeeName" → folderId
 const subfolderCache = new Map<string, string>();
 
-function getDriveClient() {
-  const json = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!json) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON не задан в .env');
+export function getDriveClient() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  const credentials = JSON.parse(json) as { client_email: string; private_key: string };
-  const auth = new google.auth.JWT({
-    email: credentials.client_email,
-    key: credentials.private_key,
-    scopes: ['https://www.googleapis.com/auth/drive'],
-  });
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error('GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET и GOOGLE_REFRESH_TOKEN должны быть заданы в .env');
+  }
+
+  const auth = new google.auth.OAuth2(clientId, clientSecret);
+  auth.setCredentials({ refresh_token: refreshToken });
 
   return google.drive({ version: 'v3', auth });
 }
@@ -53,6 +51,8 @@ async function getOrCreateSubfolder(
     q: query,
     fields: 'files(id)',
     spaces: 'drive',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   if (list.data.files && list.data.files.length > 0) {
@@ -69,6 +69,7 @@ async function getOrCreateSubfolder(
       parents: [parentFolderId],
     },
     fields: 'id',
+    supportsAllDrives: true,
   });
 
   const id = created.data.id!;
@@ -78,7 +79,6 @@ async function getOrCreateSubfolder(
 }
 
 export interface UploadContext {
-  location?: string | null;
   displayName?: string;
 }
 
@@ -100,19 +100,16 @@ async function uploadToGoogleDrive(
 ): Promise<string> {
   const drive = getDriveClient();
 
-  const location = context?.location ?? 'restaurant';
-  const parentFolderId = DRIVE_FOLDERS[location] ?? DRIVE_FOLDERS['restaurant'];
-
-  if (!parentFolderId) {
-    console.warn('[storage] No Drive folder for location, falling back to local');
+  if (!DRIVE_ROOT_FOLDER) {
+    console.warn('[storage] GOOGLE_DRIVE_FOLDER_ID not set, falling back to local');
     return uploadToLocal(buffer, filename);
   }
 
   // Подпапка по имени сотрудника
-  let targetFolderId = parentFolderId;
+  let targetFolderId = DRIVE_ROOT_FOLDER;
   const employeeName = context?.displayName;
   if (employeeName) {
-    targetFolderId = await getOrCreateSubfolder(drive, parentFolderId, employeeName);
+    targetFolderId = await getOrCreateSubfolder(drive, DRIVE_ROOT_FOLDER, employeeName);
   }
 
   // Загрузка файла
@@ -126,6 +123,8 @@ async function uploadToGoogleDrive(
       body: Readable.from(buffer),
     },
     fields: 'id, webViewLink, webContentLink',
+    supportsAllDrives: true,
+    supportsTeamDrives: true,
   });
 
   const fileId = response.data.id!;
@@ -137,6 +136,7 @@ async function uploadToGoogleDrive(
       role: 'reader',
       type: 'anyone',
     },
+    supportsAllDrives: true,
   });
 
   const link = response.data.webViewLink ?? response.data.webContentLink ?? `https://drive.google.com/file/d/${fileId}/view`;

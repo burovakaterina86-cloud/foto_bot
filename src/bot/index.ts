@@ -5,7 +5,7 @@ import path from 'node:path';
 import type { Context } from 'telegraf';
 import { config, isAdmin } from '../config/index.js';
 import { ensureUserFromContext, upsertRegisteredUser } from '../services/userService.js';
-import { roles, findRoleByLabel } from '../config/roles.js';
+import { type RoleKey, roles, findRoleByLabel } from '../config/roles.js';
 import { prisma } from '../db/client.js';
 import { getActiveChecklistsForUserNow } from '../services/checklistService.js';
 import {
@@ -25,7 +25,7 @@ import { computePhotoHash, hammingDistance, DUPLICATE_THRESHOLD } from '../utils
 import { syncChecklists } from '../db/seed.js';
 import { rateLimitMiddleware } from './rateLimit.js';
 import { registerChecklistAdmin, sendChecklistList } from './adminChecklists.js';
-import { enqueueAnswer, enqueueShift } from '../services/webhookService.js';
+import { onChecklistCompleted } from '../services/checklistService.js';
 import { notifyManagers } from '../services/notificationService.js';
 
 // --- Типы FSM ---
@@ -35,6 +35,7 @@ type RegistrationStep = 'awaiting_invite' | 'awaiting_name' | 'awaiting_role' | 
 type RegistrationState = {
   step: RegistrationStep;
   tempName?: string;
+  tempRole?: string;
 };
 
 const registrationState = new Map<number, RegistrationState>();
@@ -104,25 +105,13 @@ async function sendCurrentQuestion(ctx: Context, runId: number) {
           shiftInfo += ` | Отклонённых фото: ${shiftResult.failCount}`;
         }
 
-        // Отправка итога смены в Make webhook
-        const shift = await prisma.shift.findUnique({ where: { id: shiftResult.shiftId } });
-        const shiftUser = await prisma.user.findUnique({ where: { id: completed.userId } });
-        if (shift) {
-          enqueueShift({
-            shiftId: shift.id,
-            employeeName: shiftUser?.displayName ?? shiftUser?.firstName ?? 'Сотрудник',
-            employeeRole: shiftUser?.role ?? '',
-            shiftStart: shift.startedAt.toISOString(),
-            shiftEnd: shift.endedAt?.toISOString() ?? new Date().toISOString(),
-            shiftMinutes: shiftResult.minutes,
-            failCount: shiftResult.failCount,
-          }).catch((err) => console.error('[webhook shift error]', err));
-        }
-
       } catch (error) {
         console.error('[shift calculation error]', error);
       }
     }
+
+    // Отправка данных в Google Sheets
+    onChecklistCompleted(runId).catch((err) => console.error('[sheets error]', err));
 
     await ctx.reply(
       `✅ Чек-лист "${completed.checklist.title}" завершён!\nОтветов: ${answersCount}${shiftInfo}`,
@@ -301,7 +290,6 @@ bot.command('menu', async (ctx) => {
       ],
       [
         Markup.button.callback('📊 Статус бота', 'adm:status'),
-        Markup.button.callback('🔗 Тест webhook', 'adm:test_webhook'),
       ],
       [
         Markup.button.callback('🔍 Мой аккаунт', 'adm:debug_me'),
@@ -353,16 +341,17 @@ async function handleInvite(ctx: Context) {
   const telegramId = String(from.id);
 
   const code = randomBytes(4).toString('hex').toUpperCase();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
   await prisma.inviteCode.create({
-    data: { code, createdBy: telegramId },
+    data: { code, createdBy: telegramId, expiresAt },
   });
 
-  await ctx.reply(`Код: ${code} — передай сотруднику`);
+  await ctx.reply(`Код: ${code}\nДействует 24 часа (до ${expiresAt.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })})`);
 }
 
 async function handleInvites(ctx: Context) {
   const codes = await prisma.inviteCode.findMany({
-    where: { isActive: true },
+    where: { isActive: true, usedBy: null, expiresAt: { gt: new Date() } },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -371,7 +360,10 @@ async function handleInvites(ctx: Context) {
     return;
   }
 
-  const lines = codes.map((c) => `${c.code} (создан ${c.createdAt.toLocaleDateString('ru-RU')})`);
+  const lines = codes.map((c) => {
+    const hoursLeft = Math.max(0, Math.round((c.expiresAt.getTime() - Date.now()) / 3600000));
+    return `${c.code} (осталось ${hoursLeft} ч)`;
+  });
   await ctx.reply(`Активные коды (${codes.length}):\n${lines.join('\n')}`);
 }
 
@@ -389,74 +381,6 @@ bot.command('invites', async (ctx) => {
   const telegramId = String(from.id);
   if (telegramId !== config.OWNER_ID && !isAdmin(telegramId)) return;
   await handleInvites(ctx);
-});
-
-async function handleTestWebhook(ctx: Context) {
-  if (!config.MAKE_WEBHOOK_URL) {
-    await ctx.reply('MAKE_WEBHOOK_URL не задан в .env');
-    return;
-  }
-
-  try {
-    const now = new Date();
-    const fmt = (d: Date) => d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    const nowStr = fmt(now);
-
-    const answerPayload = {
-      type: 'answer',
-      run_id: 0,
-      checklist: 'Тестовый чек-лист',
-      checklist_type: 'open',
-      question_order: 1,
-      question_text: 'Тестовый вопрос',
-      employee_name: 'Тест Тестов',
-      employee_role: 'waiter',
-      ai_verdict: 'ok',
-      ai_reason: 'Тестовая проверка',
-      ai_confidence: 0.99,
-      photo_path: 'uploads/test.jpg',
-      timestamp: nowStr,
-    };
-
-    const res1 = await fetch(config.MAKE_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answerPayload),
-    });
-
-    const shiftPayload = {
-      type: 'shift_summary',
-      employee_name: 'Тест Тестов',
-      employee_role: 'waiter',
-      shift_start: nowStr,
-      shift_end: nowStr,
-      shift_minutes: '8ч 0мин',
-      fail_count: 0,
-      timestamp: nowStr,
-    };
-
-    const res2 = await fetch(config.MAKE_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(shiftPayload),
-    });
-
-    await ctx.reply(
-      `Отправлено:\n1. answer → ${res1.status}\n2. shift_summary → ${res2.status}`,
-    );
-  } catch (error) {
-    console.error('[test_webhook error]', error);
-    await ctx.reply('Ошибка при отправке в Make.');
-  }
-}
-
-bot.command('test_webhook', async (ctx) => {
-  const from = ctx.from;
-  if (!from) return;
-  const telegramId = String(from.id);
-  if (telegramId !== config.OWNER_ID && !isAdmin(telegramId)) return;
-  await handleTestWebhook(ctx);
 });
 
 async function handleReload(ctx: Context) {
@@ -570,15 +494,6 @@ bot.action('adm:status', async (ctx) => {
   const telegramId = String(from.id);
   if (telegramId !== config.OWNER_ID && !isAdmin(telegramId)) return;
   await handleStatus(ctx);
-});
-
-bot.action('adm:test_webhook', async (ctx) => {
-  await ctx.answerCbQuery();
-  const from = ctx.from;
-  if (!from) return;
-  const telegramId = String(from.id);
-  if (telegramId !== config.OWNER_ID && !isAdmin(telegramId)) return;
-  await handleTestWebhook(ctx);
 });
 
 bot.action('adm:debug_me', async (ctx) => {
@@ -807,28 +722,11 @@ bot.on('photo', async (ctx) => {
     // Сохранение фото (Google Drive или локально)
     const filename = `${randomUUID()}.jpg`;
     const filePath = await uploadPhoto(stamped, filename, {
-      location: user.location,
-      displayName: displayName,
+      displayName,
     });
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
-
-    // Отправка в Make webhook (outbox)
-    enqueueAnswer({
-      runId: activeRun.id,
-      questionId: nextQ.question.id,
-      checklist: activeRun.checklist.title,
-      checklistType: activeRun.checklist.type,
-      questionOrder: nextQ.questionNumber,
-      questionText: nextQ.question.text,
-      employeeName: displayName,
-      employeeRole: user.role ?? '',
-      aiVerdict,
-      aiReason,
-      aiConfidence,
-      photoPath: filePath,
-    }).catch((err) => console.error('[webhook answer error]', err));
 
     await ctx.reply(`✅ Фото принято (${nextQ.questionNumber}/${nextQ.totalQuestions})`);
 
@@ -926,28 +824,11 @@ bot.on('document', async (ctx) => {
     // Сохранение фото (Google Drive или локально)
     const filename = `${randomUUID()}.jpg`;
     const filePath = await uploadPhoto(stamped, filename, {
-      location: user.location,
-      displayName: displayName,
+      displayName,
     });
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
-
-    // Отправка в Make webhook (outbox)
-    enqueueAnswer({
-      runId: activeRun.id,
-      questionId: nextQ.question.id,
-      checklist: activeRun.checklist.title,
-      checklistType: activeRun.checklist.type,
-      questionOrder: nextQ.questionNumber,
-      questionText: nextQ.question.text,
-      employeeName: displayName,
-      employeeRole: user.role ?? '',
-      aiVerdict,
-      aiReason,
-      aiConfidence,
-      photoPath: filePath,
-    }).catch((err) => console.error('[webhook answer error]', err));
 
     await ctx.reply(`✅ Фото принято (${nextQ.questionNumber}/${nextQ.totalQuestions})`);
     await sendCurrentQuestion(ctx, activeRun.id);
@@ -958,6 +839,44 @@ bot.on('document', async (ctx) => {
 });
 
 // --- Обработка текста ---
+
+bot.action(/^reg:location:(restaurant|cafe)$/, async (ctx) => {
+  await ctx.answerCbQuery();
+  const from = ctx.from;
+  if (!from) return;
+
+  const state = registrationState.get(from.id);
+  if (!state || state.step !== 'awaiting_location') return;
+
+  const location = ctx.match[1];
+  const locationLabel = location === 'restaurant' ? '🍽 Ресторан' : '☕ Кофепоинт';
+  const telegramId = String(from.id);
+
+  const roleConfig = roles.find((r) => r.key === state.tempRole);
+
+  const user = await upsertRegisteredUser({
+    telegramId,
+    firstName: from.first_name ?? null,
+    lastName: from.last_name ?? null,
+    username: from.username ?? null,
+    displayName: state.tempName ?? from.first_name ?? 'Без имени',
+    role: state.tempRole as RoleKey,
+    location,
+  });
+
+  registrationState.delete(from.id);
+
+  await ctx.editMessageText(
+    [
+      'Регистрация завершена ✅',
+      `Имя: ${user.displayName}`,
+      `Роль: ${roleConfig?.label ?? state.tempRole}`,
+      `Локация: ${locationLabel}`,
+    ].join('\n'),
+  );
+
+  await showAvailableChecklists(ctx, user);
+});
 
 bot.on('text', async (ctx) => {
   const from = ctx.from;
@@ -1019,8 +938,8 @@ bot.on('text', async (ctx) => {
         where: { code: text.toUpperCase() },
       });
 
-      if (!invite || !invite.isActive || invite.usedBy) {
-        await ctx.reply('Неверный код. Попросите администратора выдать новый.');
+      if (!invite || !invite.isActive || invite.usedBy || invite.expiresAt < new Date()) {
+        await ctx.reply('Неверный или просроченный код. Попросите администратора выдать новый.');
         return;
       }
 
@@ -1064,29 +983,13 @@ bot.on('text', async (ctx) => {
         return;
       }
 
-      const fromData = ctx.from;
-      const telegramId = String(fromData.id);
+      state.tempRole = roleConfig.key;
+      state.step = 'awaiting_location';
 
-      const user = await upsertRegisteredUser({
-        telegramId,
-        firstName: fromData.first_name ?? null,
-        lastName: fromData.last_name ?? null,
-        username: fromData.username ?? null,
-        displayName: state.tempName ?? fromData.first_name ?? 'Без имени',
-        role: roleConfig.key,
-      });
-
-      registrationState.delete(from.id);
-
-      await ctx.reply(
-        [
-          'Регистрация завершена ✅',
-          `Имя: ${user.displayName}`,
-          `Роль: ${roleConfig.label}`,
-        ].join('\n'),
-      );
-
-      await showAvailableChecklists(ctx, user);
+      await ctx.reply('Выбери локацию:', Markup.inlineKeyboard([
+        [Markup.button.callback('🍽 Ресторан', 'reg:location:restaurant')],
+        [Markup.button.callback('☕ Кофепоинт', 'reg:location:cafe')],
+      ]));
       return;
     }
   }

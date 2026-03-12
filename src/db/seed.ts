@@ -14,7 +14,7 @@ type RawTaskSeed = {
   type?: 'photo' | 'confirm';
   section?: string;
   ai_rule?: string | null;
-  reference_photo?: string;
+  reference_photo?: string | string[] | null;
 };
 
 type RawChecklistSeed = {
@@ -73,20 +73,38 @@ export async function syncChecklists(): Promise<number> {
         },
       });
 
-      // Пересоздать вопросы этого чек-листа
-      await prisma.question.deleteMany({ where: { checklistId: existing.id } });
-      await prisma.question.createMany({
-        data: checklist.tasks.map((t) => ({
-          checklistId: existing.id,
+      // Обновить вопросы, сохраняя ID (чтобы не ломать ссылки из answers)
+      const existingQuestions = await prisma.question.findMany({
+        where: { checklistId: existing.id },
+        select: { id: true, order: true },
+      });
+      const questionsByOrder = new Map(existingQuestions.map((q) => [q.order, q.id]));
+
+      for (const t of checklist.tasks) {
+        const qData = {
           text: t.text,
           order: t.order,
           isRequired: t.type !== 'confirm',
           taskType: t.type ?? 'photo',
           section: t.section ?? null,
-          referencePhoto: t.reference_photo ?? null,
+          referencePhoto: Array.isArray(t.reference_photo) ? JSON.stringify(t.reference_photo) : t.reference_photo ?? null,
           aiRule: t.ai_rule ?? null,
-        })),
-      });
+        };
+
+        const existingId = questionsByOrder.get(t.order);
+        if (existingId) {
+          await prisma.question.update({ where: { id: existingId }, data: qData });
+          questionsByOrder.delete(t.order);
+        } else {
+          await prisma.question.create({ data: { checklistId: existing.id, ...qData } });
+        }
+      }
+
+      // Удалить вопросы, которых больше нет в конфиге
+      const removedIds = [...questionsByOrder.values()];
+      if (removedIds.length > 0) {
+        await prisma.question.deleteMany({ where: { id: { in: removedIds } } });
+      }
 
       console.log(`✔ Checklist "${checklist.name}" обновлён (${checklist.tasks.length} вопросов)`);
     } else {
@@ -109,7 +127,7 @@ export async function syncChecklists(): Promise<number> {
               isRequired: t.type !== 'confirm',
               taskType: t.type ?? 'photo',
               section: t.section ?? null,
-              referencePhoto: t.reference_photo ?? null,
+              referencePhoto: Array.isArray(t.reference_photo) ? JSON.stringify(t.reference_photo) : t.reference_photo ?? null,
               aiRule: t.ai_rule ?? null,
             })),
           },

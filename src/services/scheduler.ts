@@ -3,7 +3,7 @@ import type { Telegraf } from 'telegraf';
 import type { Context } from 'telegraf';
 import { prisma } from '../db/client.js';
 import { config } from '../config/index.js';
-import { processOutbox } from './webhookService.js';
+import { getDriveClient } from './storage.js';
 
 type TimeWindow = { start: string; end: string };
 
@@ -211,6 +211,92 @@ async function processSchedule(bot: Telegraf<Context>): Promise<void> {
   }
 }
 
+/**
+ * Удаляет файлы старше 30 дней из Google Drive папки GOOGLE_DRIVE_FOLDER_ID.
+ * Рекурсивно: сначала файлы внутри подпапок, потом пустые подпапки.
+ */
+async function cleanupOldDriveFiles(): Promise<void> {
+  const rootFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+  if (!rootFolderId || process.env.ENABLE_GOOGLE_DRIVE !== 'true') return;
+
+  const drive = getDriveClient();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffISO = cutoff.toISOString();
+
+  let totalDeleted = 0;
+  let foldersDeleted = 0;
+
+  // Получить все подпапки сотрудников
+  const subfolders = await drive.files.list({
+    q: `'${rootFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+    fields: 'files(id, name)',
+    spaces: 'drive',
+    pageSize: 1000,
+  });
+
+  const folders = subfolders.data.files ?? [];
+
+  for (const folder of folders) {
+    if (!folder.id) continue;
+
+    // Удалить старые файлы внутри подпапки
+    let pageToken: string | undefined;
+    do {
+      const files = await drive.files.list({
+        q: `'${folder.id}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false and createdTime < '${cutoffISO}'`,
+        fields: 'nextPageToken, files(id, name)',
+        spaces: 'drive',
+        pageSize: 100,
+        pageToken,
+      });
+
+      for (const file of files.data.files ?? []) {
+        if (!file.id) continue;
+        await drive.files.delete({ fileId: file.id });
+        totalDeleted++;
+      }
+
+      pageToken = files.data.nextPageToken ?? undefined;
+    } while (pageToken);
+
+    // Проверить, осталась ли подпапка пустой
+    const remaining = await drive.files.list({
+      q: `'${folder.id}' in parents and trashed = false`,
+      fields: 'files(id)',
+      spaces: 'drive',
+      pageSize: 1,
+    });
+
+    if (!remaining.data.files || remaining.data.files.length === 0) {
+      await drive.files.delete({ fileId: folder.id });
+      foldersDeleted++;
+    }
+  }
+
+  // Удалить старые файлы в корне папки (не в подпапках)
+  let pageToken: string | undefined;
+  do {
+    const files = await drive.files.list({
+      q: `'${rootFolderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false and createdTime < '${cutoffISO}'`,
+      fields: 'nextPageToken, files(id, name)',
+      spaces: 'drive',
+      pageSize: 100,
+      pageToken,
+    });
+
+    for (const file of files.data.files ?? []) {
+      if (!file.id) continue;
+      await drive.files.delete({ fileId: file.id });
+      totalDeleted++;
+    }
+
+    pageToken = files.data.nextPageToken ?? undefined;
+  } while (pageToken);
+
+  console.log(`[cleanup] Drive cleanup done: ${totalDeleted} files, ${foldersDeleted} empty folders deleted`);
+}
+
 export function startScheduler(bot: Telegraf<Context>): void {
   // Каждую минуту — расписание чек-листов
   cron.schedule('* * * * *', () => {
@@ -219,19 +305,12 @@ export function startScheduler(bot: Telegraf<Context>): void {
     });
   });
 
-  // Каждые 10 секунд — отправка событий из outbox
-  let isProcessing = false;
-  setInterval(async () => {
-    if (isProcessing) return;
-    isProcessing = true;
-    try {
-      await processOutbox();
-    } catch (error) {
-      console.error('[outbox worker] Ошибка:', error);
-    } finally {
-      isProcessing = false;
-    }
-  }, 10_000);
+  // Каждую ночь в 03:00 — очистка старых файлов на Google Drive
+  cron.schedule('0 3 * * *', () => {
+    cleanupOldDriveFiles().catch((error) => {
+      console.error('[cleanup] Ошибка очистки Drive:', error);
+    });
+  });
 
   console.log('⏰ Scheduler started');
 }

@@ -1,6 +1,7 @@
 import type { Checklist, User } from '@prisma/client';
 import { prisma } from '../db/client.js';
 import { config } from '../config/index.js';
+import { appendAnswers } from './sheetsService.js';
 
 type ActiveChecklistsResult = {
   checklists: Checklist[];
@@ -174,5 +175,28 @@ export async function getActiveChecklistsForUserNow(
   }
 
   return { checklists: [], nextTimeText };
+}
+
+/**
+ * Вызывается после завершения чек-листа.
+ * Загружает полные данные run + answers + questions и отправляет в Google Sheets.
+ */
+export async function onChecklistCompleted(runId: number): Promise<void> {
+  const run = await prisma.run.findUnique({
+    where: { id: runId },
+    include: {
+      checklist: true,
+      answers: {
+        include: { question: true },
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  });
+  if (!run) return;
+
+  const user = await prisma.user.findUnique({ where: { id: run.userId } });
+  if (!user) return;
+
+  await appendAnswers(run, user);
 }
 
