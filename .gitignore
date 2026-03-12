@@ -10,3 +10,5 @@ dist/
 uploads/
 .cursor/
 .cursorrules/
+client_secret_*.json
+smenapro-*.json
