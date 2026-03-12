@@ -27,6 +27,7 @@ import { rateLimitMiddleware } from './rateLimit.js';
 import { registerChecklistAdmin, sendChecklistList } from './adminChecklists.js';
 import { onChecklistCompleted } from '../services/checklistService.js';
 import { notifyManagers } from '../services/notificationService.js';
+import { appendSingleAnswer } from '../services/sheetsService.js';
 
 // --- Типы FSM ---
 
@@ -710,10 +711,6 @@ bot.on('photo', async (ctx) => {
 
     if (aiRule) {
       const result = await verifyPhoto(buffer, aiRule, nextQ.question.text, nextQ.question.referencePhoto);
-      if (result.verdict === 'fail') {
-        await ctx.reply(`❌ Фото не прошло проверку: ${result.reason}. Попробуйте переснять.`);
-        return;
-      }
       aiVerdict = result.verdict;
       aiReason = result.reason;
       aiConfidence = result.confidence;
@@ -727,6 +724,23 @@ bot.on('photo', async (ctx) => {
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
+
+    // Записать в Google Sheets сразу после каждого фото
+    appendSingleAnswer({
+      user,
+      checklistTitle: activeRun.checklist.title,
+      questionText: nextQ.question.text,
+      taskType: nextQ.question.taskType ?? 'photo',
+      photoUrl: filePath,
+      aiVerdict,
+      aiReason,
+      runStartedAt: activeRun.startedAt,
+    }).catch((err) => console.error('[sheets single answer error]', err));
+
+    if (aiVerdict === 'fail') {
+      await ctx.reply(`❌ Фото не прошло проверку: ${aiReason}. Попробуйте переснять.`);
+      return;
+    }
 
     await ctx.reply(`✅ Фото принято (${nextQ.questionNumber}/${nextQ.totalQuestions})`);
 
@@ -812,10 +826,6 @@ bot.on('document', async (ctx) => {
 
     if (aiRule) {
       const result = await verifyPhoto(buffer, aiRule, nextQ.question.text, nextQ.question.referencePhoto);
-      if (result.verdict === 'fail') {
-        await ctx.reply(`❌ Фото не прошло проверку: ${result.reason}. Попробуйте переснять.`);
-        return;
-      }
       aiVerdict = result.verdict;
       aiReason = result.reason;
       aiConfidence = result.confidence;
@@ -829,6 +839,23 @@ bot.on('document', async (ctx) => {
 
     // Сохранить путь к файлу с AI-вердиктом и хешем
     await saveAnswer(activeRun.id, nextQ.question.id, filePath, aiVerdict, aiReason, aiConfidence, hash);
+
+    // Записать в Google Sheets сразу после каждого фото
+    appendSingleAnswer({
+      user,
+      checklistTitle: activeRun.checklist.title,
+      questionText: nextQ.question.text,
+      taskType: nextQ.question.taskType ?? 'photo',
+      photoUrl: filePath,
+      aiVerdict,
+      aiReason,
+      runStartedAt: activeRun.startedAt,
+    }).catch((err) => console.error('[sheets single answer error]', err));
+
+    if (aiVerdict === 'fail') {
+      await ctx.reply(`❌ Фото не прошло проверку: ${aiReason}. Попробуйте переснять.`);
+      return;
+    }
 
     await ctx.reply(`✅ Фото принято (${nextQ.questionNumber}/${nextQ.totalQuestions})`);
     await sendCurrentQuestion(ctx, activeRun.id);

@@ -48,13 +48,16 @@ export async function getNextQuestion(runId: number) {
           questions: { orderBy: { order: 'asc' } },
         },
       },
-      answers: { select: { questionId: true } },
+      answers: { select: { questionId: true, aiVerdict: true } },
     },
   });
 
   if (!run) return null;
 
-  const answeredIds = new Set(run.answers.map((a) => a.questionId));
+  // Считать вопрос отвеченным только если есть ответ с verdict != fail
+  const answeredIds = new Set(
+    run.answers.filter((a) => a.aiVerdict !== 'fail').map((a) => a.questionId),
+  );
   const questions = run.checklist.questions;
   const next = questions.find((q) => !answeredIds.has(q.id));
 

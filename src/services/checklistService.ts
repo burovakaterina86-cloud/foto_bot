@@ -1,7 +1,7 @@
 import type { Checklist, User } from '@prisma/client';
 import { prisma } from '../db/client.js';
 import { config } from '../config/index.js';
-import { appendAnswers } from './sheetsService.js';
+import { appendAnswers, recordShiftSummary, updateMonthlyStats } from './sheetsService.js';
 
 type ActiveChecklistsResult = {
   checklists: Checklist[];
@@ -197,6 +197,22 @@ export async function onChecklistCompleted(runId: number): Promise<void> {
   const user = await prisma.user.findUnique({ where: { id: run.userId } });
   if (!user) return;
 
-  await appendAnswers(run, user);
+  // Ответы записываются в Sheets сразу после каждого фото (appendSingleAnswer)
+  // Здесь только смена и статистика для close чек-листов
+  if (run.checklist.type === 'close') {
+    const shift = await prisma.shift.findFirst({
+      where: { userId: run.userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (shift) {
+      const diffMs = (shift.endedAt ?? new Date()).getTime() - shift.startedAt.getTime();
+      const hours = Math.round((diffMs / 3_600_000) * 10) / 10;
+      const failCount = shift.failCount ?? 0;
+
+      await recordShiftSummary({ shift, user, failCount });
+      await updateMonthlyStats({ user, hoursToAdd: hours, errorsToAdd: failCount });
+    }
+  }
 }
 
