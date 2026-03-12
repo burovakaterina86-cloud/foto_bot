@@ -202,7 +202,7 @@ export async function onChecklistCompleted(runId: number): Promise<void> {
   if (run.checklist.type === 'close') {
     const shift = await prisma.shift.findFirst({
       where: { userId: run.userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { id: 'desc' },
     });
 
     if (shift) {

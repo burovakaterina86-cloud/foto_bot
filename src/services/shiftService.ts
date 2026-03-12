@@ -84,10 +84,21 @@ export async function calculateAndSaveShift(
     },
   });
 
-  // Посчитать failCount по всем ответам
+  // Посчитать failCount по всем ответам (включая close run)
   let failCount = 0;
   for (const run of shiftRuns) {
     for (const answer of run.answers) {
+      if (answer.aiVerdict === 'fail') {
+        failCount++;
+      }
+    }
+  }
+  // Добавить fail из close run если он не вошёл в shiftRuns
+  if (!shiftRuns.some((r) => r.id === closeRun.id)) {
+    const closeAnswers = await prisma.answer.findMany({
+      where: { runId: closeRun.id },
+    });
+    for (const answer of closeAnswers) {
       if (answer.aiVerdict === 'fail') {
         failCount++;
       }
